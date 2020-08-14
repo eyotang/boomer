@@ -7,14 +7,14 @@ import (
 	"net"
 	"time"
 
-	"github.com/myzhan/boomer"
+	"github.com/eyotang/boomer"
 )
 
 var bindHost string
 var bindPort string
 var stopChannel chan bool
 
-func worker() {
+func worker(boomer.Context) {
 	conn, err := net.Dial("tcp", fmt.Sprintf("%s:%s", bindHost, bindPort))
 	if err != nil {
 		log.Println(err)

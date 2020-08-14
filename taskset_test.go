@@ -9,7 +9,7 @@ func TestWeighingTaskSetWithSingleTask(t *testing.T) {
 	taskA := &Task{
 		Name:   "A",
 		Weight: 1,
-		Fn: func(*Context) {
+		Fn: func(Context) {
 			taskAIsRun = true
 		},
 	}

@@ -51,7 +51,7 @@ type runner struct {
 
 // safeRun runs fn and recovers from unexpected panics.
 // it prevents panics from Task.Fn crashing boomer.
-func (r *runner) safeRun(fn func(ctx *Context), ctx *Context) {
+func (r *runner) safeRun(fn func(ctx Context), ctx Context) {
 	defer func() {
 		// don't panic
 		err := recover()

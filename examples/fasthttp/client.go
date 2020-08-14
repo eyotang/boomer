@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/myzhan/boomer"
+	"github.com/eyotang/boomer"
 	"github.com/valyala/fasthttp"
 )
 
@@ -21,7 +21,7 @@ var postFile string
 var contentType string
 var disableKeepalive bool
 
-func worker() {
+func worker(boomer.Context) {
 	req := fasthttp.AcquireRequest()
 	req.Header.SetMethod(method)
 	req.Header.SetContentType(contentType)

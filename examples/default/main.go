@@ -4,10 +4,10 @@ import (
 	"log"
 	"time"
 
-	"github.com/myzhan/boomer"
+	"github.com/eyotang/boomer"
 )
 
-func foo() {
+func foo(boomer.Context) {
 	start := time.Now()
 	time.Sleep(100 * time.Millisecond)
 	elapsed := time.Since(start)
@@ -17,7 +17,7 @@ func foo() {
 	boomer.RecordSuccess("http", "foo", elapsed.Nanoseconds()/int64(time.Millisecond), int64(10))
 }
 
-func bar() {
+func bar(boomer.Context) {
 	start := time.Now()
 	time.Sleep(100 * time.Millisecond)
 	elapsed := time.Since(start)

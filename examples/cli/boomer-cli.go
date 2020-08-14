@@ -7,7 +7,7 @@ import (
 	"plugin"
 	"strings"
 
-	"github.com/myzhan/boomer"
+	"github.com/eyotang/boomer"
 )
 
 // Trying to implement boomer-cli without any test scenarios
@@ -43,7 +43,7 @@ func createTask(pluginPath string) (task *boomer.Task, err error) {
 		return nil, err
 	}
 
-	task.Fn = execute.(func())
+	task.Fn = execute.(func(boomer.Context))
 	return task, nil
 }
 

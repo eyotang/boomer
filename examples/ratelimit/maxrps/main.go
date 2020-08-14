@@ -8,10 +8,10 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/myzhan/boomer"
+	"github.com/eyotang/boomer"
 )
 
-func foo() {
+func foo(boomer.Context) {
 	start := time.Now()
 	time.Sleep(100 * time.Millisecond)
 	elapsed := time.Since(start)

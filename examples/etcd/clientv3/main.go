@@ -5,13 +5,13 @@ import (
 	"log"
 	"time"
 
-	"github.com/myzhan/boomer"
+	"github.com/eyotang/boomer"
 	"go.etcd.io/etcd/clientv3"
 )
 
 var globalClient *clientv3.Client
 
-func worker() {
+func worker(boomer.Context) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 
 	start := time.Now()

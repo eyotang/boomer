@@ -8,7 +8,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/myzhan/boomer"
+	"github.com/eyotang/boomer"
 )
 
 func waitForQuit() {
@@ -44,7 +44,7 @@ func main() {
 	taskA := &boomer.Task{
 		Name:   "TaskA",
 		Weight: 10,
-		Fn: func() {
+		Fn: func(boomer.Context) {
 			time.Sleep(100 * time.Millisecond)
 			globalBoomer.RecordSuccess("task", "A", 100, int64(10))
 		},
@@ -53,7 +53,7 @@ func main() {
 	taskB := &boomer.Task{
 		Name:   "TaskB",
 		Weight: 20,
-		Fn: func() {
+		Fn: func(boomer.Context) {
 			time.Sleep(100 * time.Millisecond)
 			globalBoomer.RecordSuccess("task", "B", 100, int64(20))
 		},
