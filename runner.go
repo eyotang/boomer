@@ -139,7 +139,11 @@ func (r *runner) spawnWorkers(spawnCount int, quit chan bool, hatchCompleteFunc 
 		default:
 			atomic.AddInt32(&r.numClients, 1)
 			go func() {
-				defer atomic.AddInt32(&r.numClients, -1)
+				defer func() {
+					atomic.AddInt32(&r.numClients, -1)
+					recover()
+				}()
+
 				ctx := NewContext()
 				if t := r.getInitTask(); t != nil {
 					r.safeRun(t.Fn, ctx)
