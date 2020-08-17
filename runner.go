@@ -61,6 +61,7 @@ func (r *runner) safeRun(fn func(ctx Context), ctx Context) {
 			os.Stderr.Write([]byte(errMsg))
 			os.Stderr.Write([]byte("\n"))
 			os.Stderr.Write(stackTrace)
+			panic(err)
 		}
 	}()
 	fn(ctx)
@@ -138,6 +139,7 @@ func (r *runner) spawnWorkers(spawnCount int, quit chan bool, hatchCompleteFunc 
 		default:
 			atomic.AddInt32(&r.numClients, 1)
 			go func() {
+				defer atomic.AddInt32(&r.numClients, -1)
 				ctx := NewContext()
 				if t := r.getInitTask(); t != nil {
 					r.safeRun(t.Fn, ctx)
