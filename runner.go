@@ -25,6 +25,10 @@ const (
 	heartbeatInterval   = 1 * time.Second
 )
 
+const (
+	indexKey = "???xxx_index"
+)
+
 type runner struct {
 	state string
 
@@ -32,7 +36,6 @@ type runner struct {
 	tasks           []*Task
 	totalTaskWeight int
 	order           bool
-	index           int
 
 	rateLimiter      RateLimiter
 	rateLimitEnabled bool
@@ -151,7 +154,7 @@ func (r *runner) spawnWorkers(spawnCount int, quit chan bool, hatchCompleteFunc 
 					r.safeRun(t.Fn, ctx)
 				}
 				for {
-					task := r.getTask()
+					task := r.getTask(ctx)
 					select {
 					case <-quit:
 						return
@@ -195,7 +198,7 @@ func (r *runner) setTasks(t []*Task) {
 	r.totalTaskWeight = weightSum
 }
 
-func (r *runner) getTask() *Task {
+func (r *runner) getTask(ctx Context) *Task {
 	tasksCount := len(r.tasks)
 	if tasksCount == 1 {
 		// Fast path
@@ -203,7 +206,7 @@ func (r *runner) getTask() *Task {
 	}
 
 	if r.order {
-		return r.getOrderTask()
+		return r.getOrderTask(ctx)
 	}
 
 	rs := rand.New(rand.NewSource(time.Now().UnixNano()))
@@ -227,9 +230,20 @@ func (r *runner) getTask() *Task {
 	return nil
 }
 
-func (r *runner) getOrderTask() *Task {
-	task := r.tasks[r.index]
-	r.index = (r.index + 1) % len(r.tasks)
+func (r *runner) getOrderTask(ctx Context) *Task {
+	var (
+		ok    bool
+		index = 0
+		v     interface{}
+	)
+	if v, ok = ctx.Get(indexKey); ok {
+		if index, ok = v.(int); !ok {
+			index = 0
+		}
+	}
+	task := r.tasks[index]
+	index = (index + 1) % len(r.tasks)
+	ctx.Set(indexKey, index)
 	return task
 }
 
