@@ -175,6 +175,7 @@ func (r *runner) spawnWorkers(spawnCount int, quit chan bool, hatchCompleteFunc 
 // which is used to get a random task later
 func (r *runner) setTasks(t []*Task) {
 	r.tasks = t
+	tasksCount := len(r.tasks)
 
 	orderSum := 0
 	weightSum := 0
@@ -184,12 +185,11 @@ func (r *runner) setTasks(t []*Task) {
 			orderSum += 1
 		}
 	}
-	if orderSum != 0 && orderSum != len(t) {
+	if orderSum != 0 && orderSum != tasksCount {
 		panic("Set task order for each task, otherwise none of them")
 	}
-	if orderSum == len(t) {
-		Sort(t)
-		r.tasks = t
+	if orderSum == tasksCount {
+		Sort(r.tasks)
 		r.order = true
 	}
 	r.totalTaskWeight = weightSum
