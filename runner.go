@@ -188,8 +188,9 @@ func (r *runner) setTasks(t []*Task) {
 		panic("Set task order for each task, otherwise none of them")
 	}
 	if orderSum == len(t) {
+		Sort(t)
+		r.tasks = t
 		r.order = true
-		Sort(r.tasks)
 	}
 	r.totalTaskWeight = weightSum
 }
