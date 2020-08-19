@@ -154,7 +154,6 @@ func (r *runner) spawnWorkers(spawnCount int, quit chan bool, hatchCompleteFunc 
 					r.safeRun(t.Fn, ctx)
 				}
 				for {
-					task := r.getTask(ctx)
 					select {
 					case <-quit:
 						return
@@ -162,9 +161,11 @@ func (r *runner) spawnWorkers(spawnCount int, quit chan bool, hatchCompleteFunc 
 						if r.rateLimitEnabled {
 							blocked := r.rateLimiter.Acquire()
 							if !blocked {
+								task := r.getTask(ctx)
 								r.safeRun(task.Fn, ctx)
 							}
 						} else {
+							task := r.getTask(ctx)
 							r.safeRun(task.Fn, ctx)
 						}
 					}
