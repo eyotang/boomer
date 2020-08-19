@@ -31,6 +31,8 @@ type runner struct {
 	initTask        *Task
 	tasks           []*Task
 	totalTaskWeight int
+	order           bool
+	index           int
 
 	rateLimiter      RateLimiter
 	rateLimitEnabled bool
@@ -174,9 +176,20 @@ func (r *runner) spawnWorkers(spawnCount int, quit chan bool, hatchCompleteFunc 
 func (r *runner) setTasks(t []*Task) {
 	r.tasks = t
 
+	orderSum := 0
 	weightSum := 0
 	for _, task := range r.tasks {
 		weightSum += task.Weight
+		if task.Order != 0 {
+			orderSum += 1
+		}
+	}
+	if orderSum != 0 && orderSum != len(t) {
+		panic("Set task order for each task, otherwise none of them")
+	}
+	if orderSum == len(t) {
+		r.order = true
+		Sort(r.tasks)
 	}
 	r.totalTaskWeight = weightSum
 }
@@ -186,6 +199,10 @@ func (r *runner) getTask() *Task {
 	if tasksCount == 1 {
 		// Fast path
 		return r.tasks[0]
+	}
+
+	if r.order {
+		return r.getOrderTask()
 	}
 
 	rs := rand.New(rand.NewSource(time.Now().UnixNano()))
@@ -207,6 +224,12 @@ func (r *runner) getTask() *Task {
 	}
 
 	return nil
+}
+
+func (r *runner) getOrderTask() *Task {
+	task := r.tasks[r.index]
+	r.index = (r.index + 1) % len(r.tasks)
+	return task
 }
 
 func (r *runner) setInitTask(t *Task) {

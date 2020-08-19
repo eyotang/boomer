@@ -9,6 +9,7 @@ require (
 	github.com/google/uuid v1.1.1
 	github.com/olekukonko/tablewriter v0.0.4
 	github.com/shirou/gopsutil v2.20.6+incompatible
+	github.com/smartystreets/goconvey v1.6.4
 	github.com/stretchr/testify v1.6.1
 	github.com/ugorji/go/codec v1.1.7
 	github.com/zeromq/gomq v0.0.0-20181008000130-95dc37dee5c4
