@@ -66,7 +66,9 @@ func (r *runner) safeRun(fn func(ctx Context), ctx Context) {
 			os.Stderr.Write([]byte(errMsg))
 			os.Stderr.Write([]byte("\n"))
 			os.Stderr.Write(stackTrace)
-			panic(err)
+			if err == StopUser {
+				panic(err)
+			}
 		}
 	}()
 	fn(ctx)
