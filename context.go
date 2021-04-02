@@ -91,6 +91,138 @@ func (m Context) Get(key string) (interface{}, bool) {
 	return val, ok
 }
 
+func (m Context) GetString(key string) (value string, ok bool) {
+	var v interface{}
+	if v, ok = m.Get(key); !ok {
+		return
+	}
+
+	if value, ok = v.(string); !ok {
+		return
+	}
+	return
+}
+
+func (m Context) GetInt(key string) (value int, ok bool) {
+	var v interface{}
+	if v, ok = m.Get(key); !ok {
+		return
+	}
+
+	if value, ok = v.(int); !ok {
+		return
+	}
+	return
+}
+
+func (m Context) GetInt8(key string) (value int8, ok bool) {
+	var v interface{}
+	if v, ok = m.Get(key); !ok {
+		return
+	}
+
+	if value, ok = v.(int8); !ok {
+		return
+	}
+	return
+}
+
+func (m Context) GetInt16(key string) (value int16, ok bool) {
+	var v interface{}
+	if v, ok = m.Get(key); !ok {
+		return
+	}
+
+	if value, ok = v.(int16); !ok {
+		return
+	}
+	return
+}
+
+func (m Context) GetInt32(key string) (value int32, ok bool) {
+	var v interface{}
+	if v, ok = m.Get(key); !ok {
+		return
+	}
+
+	if value, ok = v.(int32); !ok {
+		return
+	}
+	return
+}
+
+func (m Context) GetInt64(key string) (value int64, ok bool) {
+	var v interface{}
+	if v, ok = m.Get(key); !ok {
+		return
+	}
+
+	if value, ok = v.(int64); !ok {
+		return
+	}
+	return
+}
+
+func (m Context) GetUint(key string) (value uint, ok bool) {
+	var v interface{}
+	if v, ok = m.Get(key); !ok {
+		return
+	}
+
+	if value, ok = v.(uint); !ok {
+		return
+	}
+	return
+}
+
+func (m Context) GetUint8(key string) (value uint8, ok bool) {
+	var v interface{}
+	if v, ok = m.Get(key); !ok {
+		return
+	}
+
+	if value, ok = v.(uint8); !ok {
+		return
+	}
+	return
+}
+
+func (m Context) GetUint16(key string) (value uint16, ok bool) {
+	var v interface{}
+	if v, ok = m.Get(key); !ok {
+		return
+	}
+
+	if value, ok = v.(uint16); !ok {
+		return
+	}
+	return
+}
+
+func (m Context) GetUint32(key string) (value uint32, ok bool) {
+	var v interface{}
+	if v, ok = m.Get(key); !ok {
+		return
+	}
+
+	if value, ok = v.(uint32); !ok {
+		return
+	}
+	return
+}
+
+func (m Context) GetUint64(key string) (value uint64, ok bool) {
+	var v interface{}
+	if v, ok = m.Get(key); !ok {
+		return
+	}
+
+	if value, ok = v.(uint64); !ok {
+		return
+	}
+	return
+}
+
 // Count returns the number of elements within the map.
 func (m Context) Count() int {
 	count := 0
@@ -152,6 +284,138 @@ func (m Context) Pop(key string) (v interface{}, exists bool) {
 	delete(shard.items, key)
 	shard.Unlock()
 	return v, exists
+}
+
+func (m Context) PopString(key string) (value string, ok bool) {
+	var v interface{}
+	if v, ok = m.Pop(key); !ok {
+		return
+	}
+
+	if value, ok = v.(string); !ok {
+		return
+	}
+	return
+}
+
+func (m Context) PopInt(key string) (value int, ok bool) {
+	var v interface{}
+	if v, ok = m.Pop(key); !ok {
+		return
+	}
+
+	if value, ok = v.(int); !ok {
+		return
+	}
+	return
+}
+
+func (m Context) PopInt8(key string) (value int8, ok bool) {
+	var v interface{}
+	if v, ok = m.Pop(key); !ok {
+		return
+	}
+
+	if value, ok = v.(int8); !ok {
+		return
+	}
+	return
+}
+
+func (m Context) PopInt16(key string) (value int16, ok bool) {
+	var v interface{}
+	if v, ok = m.Pop(key); !ok {
+		return
+	}
+
+	if value, ok = v.(int16); !ok {
+		return
+	}
+	return
+}
+
+func (m Context) PopInt32(key string) (value int32, ok bool) {
+	var v interface{}
+	if v, ok = m.Pop(key); !ok {
+		return
+	}
+
+	if value, ok = v.(int32); !ok {
+		return
+	}
+	return
+}
+
+func (m Context) PopInt64(key string) (value int64, ok bool) {
+	var v interface{}
+	if v, ok = m.Pop(key); !ok {
+		return
+	}
+
+	if value, ok = v.(int64); !ok {
+		return
+	}
+	return
+}
+
+func (m Context) PopUint(key string) (value uint, ok bool) {
+	var v interface{}
+	if v, ok = m.Pop(key); !ok {
+		return
+	}
+
+	if value, ok = v.(uint); !ok {
+		return
+	}
+	return
+}
+
+func (m Context) PopUint8(key string) (value uint8, ok bool) {
+	var v interface{}
+	if v, ok = m.Pop(key); !ok {
+		return
+	}
+
+	if value, ok = v.(uint8); !ok {
+		return
+	}
+	return
+}
+
+func (m Context) PopUint16(key string) (value uint16, ok bool) {
+	var v interface{}
+	if v, ok = m.Pop(key); !ok {
+		return
+	}
+
+	if value, ok = v.(uint16); !ok {
+		return
+	}
+	return
+}
+
+func (m Context) PopUint32(key string) (value uint32, ok bool) {
+	var v interface{}
+	if v, ok = m.Pop(key); !ok {
+		return
+	}
+
+	if value, ok = v.(uint32); !ok {
+		return
+	}
+	return
+}
+
+func (m Context) PopUint64(key string) (value uint64, ok bool) {
+	var v interface{}
+	if v, ok = m.Pop(key); !ok {
+		return
+	}
+
+	if value, ok = v.(uint64); !ok {
+		return
+	}
+	return
 }
 
 // IsEmpty checks if map is empty.
