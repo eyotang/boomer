@@ -14,7 +14,7 @@ import (
 
 const (
 	stateInit     = "ready"
-	stateSpawning = "spawning"
+	stateSpawning = "hatching"
 	stateRunning  = "running"
 	stateStopped  = "stopped"
 	stateQuitting = "quitting"
@@ -146,7 +146,7 @@ func (r *runner) spawnWorkers(spawnCount int, quit chan bool, spawnCompleteFunc 
 			go func() {
 				defer func() {
 					atomic.AddInt32(&r.numClients, -1)
-					recover()
+					recover() // 主程序不退出，仅退出当前协程
 				}()
 
 				ctx := NewContext()
@@ -371,7 +371,7 @@ func newSlaveRunner(masterHost string, masterPort int, tasks []*Task, rateLimite
 func (r *slaveRunner) spawnComplete() {
 	data := make(map[string]interface{})
 	data["count"] = r.numClients
-	r.client.sendChannel() <- newMessage("spawning_complete", data, r.nodeID)
+	r.client.sendChannel() <- newMessage("hatch_complete", data, r.nodeID)
 	r.state = stateRunning
 }
 
@@ -392,9 +392,13 @@ func (r *slaveRunner) close() {
 }
 
 func (r *slaveRunner) onSpawnMessage(msg *message) {
-	r.client.sendChannel() <- newMessage("spawning", nil, r.nodeID)
-	rate := msg.Data["spawn_rate"]
-	users := msg.Data["num_users"]
+	r.client.sendChannel() <- newMessage("hatching", nil, r.nodeID)
+	rate := msg.Data["hatch_rate"]
+	users, ok := msg.Data["num_users"]
+	if !ok {
+		// keep compatible with previous version of locust. 1.0b1版之前，用num_clients。
+		users, _ = msg.Data["num_clients"]
+	}
 	spawnRate := rate.(float64)
 	workers := 0
 	if _, ok := users.(uint64); ok {
@@ -411,15 +415,15 @@ func (r *slaveRunner) onSpawnMessage(msg *message) {
 
 // Runner acts as a state machine.
 func (r *slaveRunner) onMessage(msg *message) {
-	if msg.Type == "hatch" {
-		log.Println("The master sent a 'hatch' message, you are using an unsupported locust version, please update locust to 1.2.")
-		return
-	}
+	//if msg.Type == "hatch" {
+	//	log.Println("The master sent a 'hatch' message, you are using an unsupported locust version, please update locust to 1.2.")
+	//	return
+	//}
 
 	switch r.state {
 	case stateInit:
 		switch msg.Type {
-		case "spawn":
+		case "hatch":
 			r.state = stateSpawning
 			r.onSpawnMessage(msg)
 		case "quit":
@@ -429,7 +433,7 @@ func (r *slaveRunner) onMessage(msg *message) {
 		fallthrough
 	case stateRunning:
 		switch msg.Type {
-		case "spawn":
+		case "hatch":
 			r.state = stateSpawning
 			r.stop()
 			r.onSpawnMessage(msg)
@@ -448,7 +452,7 @@ func (r *slaveRunner) onMessage(msg *message) {
 		}
 	case stateStopped:
 		switch msg.Type {
-		case "spawn":
+		case "hatch":
 			r.state = stateSpawning
 			r.onSpawnMessage(msg)
 		case "quit":

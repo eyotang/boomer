@@ -309,7 +309,7 @@ func TestSpawnAndStop(t *testing.T) {
 	}
 
 	msg := <-runner.client.sendChannel()
-	if msg.Type != "spawning_complete" {
+	if msg.Type != "hatch_complete" {
 		t.Error("Runner should send spawning_complete message when spawning completed, got", msg.Type)
 	}
 	runner.stop()
@@ -374,8 +374,8 @@ func TestOnSpawnMessage(t *testing.T) {
 		}
 	}()
 
-	runner.onSpawnMessage(newMessage("spawn", map[string]interface{}{
-		"spawn_rate": float64(20),
+	runner.onSpawnMessage(newMessage("hatch", map[string]interface{}{
+		"hatch_rate": float64(20),
 		"num_users":  int64(20),
 	}, runner.nodeID))
 
@@ -474,13 +474,13 @@ func TestOnMessage(t *testing.T) {
 	}()
 
 	// start spawning
-	runner.onMessage(newMessage("spawn", map[string]interface{}{
-		"spawn_rate": float64(10),
+	runner.onMessage(newMessage("hatch", map[string]interface{}{
+		"hatch_rate": float64(10),
 		"num_users":  int64(10),
 	}, runner.nodeID))
 
 	msg := <-runner.client.sendChannel()
-	if msg.Type != "spawning" {
+	if msg.Type != "hatching" {
 		t.Error("Runner should send spawning message when starting spawn, got", msg.Type)
 	}
 
@@ -493,18 +493,18 @@ func TestOnMessage(t *testing.T) {
 		t.Error("Number of goroutines mismatches, expected: 10, current count:", runner.numClients)
 	}
 	msg = <-runner.client.sendChannel()
-	if msg.Type != "spawning_complete" {
+	if msg.Type != "hatch_complete" {
 		t.Error("Runner should send spawning_complete message when spawn completed, got", msg.Type)
 	}
 
 	// increase num_users while running
-	runner.onMessage(newMessage("spawn", map[string]interface{}{
-		"spawn_rate": float64(20),
+	runner.onMessage(newMessage("hatch", map[string]interface{}{
+		"hatch_rate": float64(20),
 		"num_users":  int64(20),
 	}, runner.nodeID))
 
 	msg = <-runner.client.sendChannel()
-	if msg.Type != "spawning" {
+	if msg.Type != "hatching" {
 		t.Error("Runner should send spawning message when starting spawn, got", msg.Type)
 	}
 
@@ -516,7 +516,7 @@ func TestOnMessage(t *testing.T) {
 		t.Error("Number of goroutines mismatches, expected: 20, current count:", runner.numClients)
 	}
 	msg = <-runner.client.sendChannel()
-	if msg.Type != "spawning_complete" {
+	if msg.Type != "hatch_complete" {
 		t.Error("Runner should send spawning_complete message when spawn completed, got", msg.Type)
 	}
 
@@ -535,13 +535,13 @@ func TestOnMessage(t *testing.T) {
 	}
 
 	// spawn again
-	runner.onMessage(newMessage("spawn", map[string]interface{}{
-		"spawn_rate": float64(10),
+	runner.onMessage(newMessage("hatch", map[string]interface{}{
+		"hatch_rate": float64(10),
 		"num_users":  uint64(10),
 	}, runner.nodeID))
 
 	msg = <-runner.client.sendChannel()
-	if msg.Type != "spawning" {
+	if msg.Type != "hatching" {
 		t.Error("Runner should send spawning message when starting spawn, got", msg.Type)
 	}
 
@@ -554,7 +554,7 @@ func TestOnMessage(t *testing.T) {
 		t.Error("Number of goroutines mismatches, expected: 10, current count:", runner.numClients)
 	}
 	msg = <-runner.client.sendChannel()
-	if msg.Type != "spawning_complete" {
+	if msg.Type != "hatch_complete" {
 		t.Error("Runner should send spawning_complete message when spawn completed, got", msg.Type)
 	}
 
