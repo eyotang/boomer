@@ -171,8 +171,8 @@ func TestDistributedRun(t *testing.T) {
 	}
 	b.Run(taskA)
 
-	server.toClient <- newMessage("spawn", map[string]interface{}{
-		"spawn_rate": float64(10),
+	server.toClient <- newMessage("hatch", map[string]interface{}{
+		"hatch_rate": float64(10),
 		"num_users":  int64(10),
 	}, b.slaveRunner.nodeID)
 
@@ -294,8 +294,8 @@ func TestRun(t *testing.T) {
 	go Run(taskA)
 	time.Sleep(20 * time.Millisecond)
 
-	server.toClient <- newMessage("spawn", map[string]interface{}{
-		"spawn_rate": float64(10),
+	server.toClient <- newMessage("hatch", map[string]interface{}{
+		"hatch_rate": float64(10),
 		"num_users":  int64(10),
 	}, defaultBoomer.slaveRunner.nodeID)
 
