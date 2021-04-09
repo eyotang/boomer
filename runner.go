@@ -409,6 +409,7 @@ func (r *slaveRunner) onSpawnMessage(msg *message) {
 		workers = int(users.(int64))
 	}
 
+
 	if r.rateLimitEnabled {
 		r.rateLimiter.Start()
 	}
