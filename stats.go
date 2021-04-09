@@ -305,5 +305,8 @@ func (err *statsError) toMap() map[string]interface{} {
 	m["name"] = err.name
 	m["error"] = err.error
 	m["occurrences"] = err.occurrences
+	// keep compatible with locust
+	// https://github.com/locustio/locust/commit/f0a5f893734faeddb83860b2985010facc910d7d#diff-5d5f310549d6d596beaa43a1282ec49e
+	m["occurences"] = err.occurrences
 	return m
 }
