@@ -26,7 +26,7 @@ class LocustCollector(object):
         # collect metrics only when locust runner is spawning or running.
         runner = self.runner
 
-        if runner and runner.state in (locust_runners.STATE_SPAWNING, locust_runners.STATE_RUNNING):
+        if runner and runner.state in (locust_runners.STATE_HATCHING, locust_runners.STATE_RUNNING):
             stats = []
             for s in chain(locust_stats.sort_stats(runner.stats.entries), [runner.stats.total]):
                 stats.append({

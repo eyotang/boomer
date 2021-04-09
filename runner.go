@@ -260,7 +260,7 @@ func (r *runner) getInitTask() *Task {
 
 func (r *runner) startSpawning(spawnCount int, spawnRate float64, spawnCompleteFunc func()) {
 	Events.Publish("boomer:hatch", spawnCount, spawnRate)
-	Events.Publish("boomer:spawn", spawnCount, spawnRate)
+	//Events.Publish("boomer:spawn", spawnCount, spawnRate)
 
 	r.stats.clearStatsChan <- true
 	r.stopChan = make(chan bool)
