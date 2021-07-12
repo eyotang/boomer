@@ -28,11 +28,11 @@ func (o *HitOutput) OnStop() {
 }
 
 func TestSafeRun(t *testing.T) {
+	ctx := NewContext()
 	runner := &runner{}
-	runner.ctx = NewContext()
 	runner.safeRun(func(Context) {
 		panic("Runner will catch this panic")
-	})
+	}, ctx)
 }
 
 func TestOutputOnStart(t *testing.T) {
@@ -498,8 +498,8 @@ func TestOnMessage(t *testing.T) {
 	}
 
 	// increase num_users while running
-	runner.onMessage(newMessage("hatch", map[string]interface{}{
-		"hatch_rate": float64(20),
+	runner.onMessage(newMessage("spawn", map[string]interface{}{
+		"spawn_rate": float64(20),
 		"num_users":  int64(20),
 	}, runner.nodeID))
 

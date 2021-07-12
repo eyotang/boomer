@@ -37,6 +37,7 @@ type Boomer struct {
 	slaveRunner *slaveRunner
 	localRunner *localRunner
 	initTask    *Task
+	quitTask    *Task
 	spawnCount  int
 	spawnRate   float64
 
@@ -121,6 +122,7 @@ func (b *Boomer) Run(tasks ...*Task) {
 	case DistributedMode:
 		b.slaveRunner = newSlaveRunner(b.masterHost, b.masterPort, tasks, b.rateLimiter)
 		b.slaveRunner.initTask = b.initTask
+		b.slaveRunner.quitTask = b.quitTask
 		for _, o := range b.outputs {
 			b.slaveRunner.addOutput(o)
 		}
@@ -128,6 +130,7 @@ func (b *Boomer) Run(tasks ...*Task) {
 	case StandaloneMode:
 		b.localRunner = newLocalRunner(tasks, b.rateLimiter, b.spawnCount, b.spawnRate)
 		b.localRunner.initTask = b.initTask
+		b.localRunner.quitTask = b.quitTask
 		for _, o := range b.outputs {
 			b.localRunner.addOutput(o)
 		}
@@ -209,14 +212,9 @@ func (b *Boomer) SetInitTask(task *Task) {
 	b.initTask = task
 }
 
-func (b *Boomer) Context() (ctx Context) {
-	switch b.mode {
-	case DistributedMode:
-		ctx = b.slaveRunner.context()
-	case StandaloneMode:
-		ctx = b.localRunner.context()
-	}
-	return
+// SetQuitTask set quit task for boomer
+func (b *Boomer) SetQuitTask(task *Task) {
+	b.quitTask = task
 }
 
 // Run tasks without connecting to the master.
@@ -307,6 +305,7 @@ func SetInitTask(task *Task) {
 	defaultBoomer.SetInitTask(task)
 }
 
-func DContext() Context {
-	return defaultBoomer.Context()
+// SetQuitTask set quit task for default boomer.
+func SetQuitTask(task *Task) {
+	defaultBoomer.SetInitTask(task)
 }
