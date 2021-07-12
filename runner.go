@@ -52,11 +52,12 @@ type runner struct {
 	closeChan chan bool
 
 	outputs []Output
+	ctx     Context
 }
 
 // safeRun runs fn and recovers from unexpected panics.
 // it prevents panics from Task.Fn crashing boomer.
-func (r *runner) safeRun(fn func(ctx Context), ctx Context) {
+func (r *runner) safeRun(fn func(ctx Context)) {
 	defer func() {
 		// don't panic
 		err := recover()
@@ -71,7 +72,7 @@ func (r *runner) safeRun(fn func(ctx Context), ctx Context) {
 			}
 		}
 	}()
-	fn(ctx)
+	fn(r.ctx)
 }
 
 func (r *runner) addOutput(o Output) {
@@ -151,9 +152,9 @@ func (r *runner) spawnWorkers(spawnCount int, quit chan bool, spawnCompleteFunc 
 					recover() // 主程序不退出，仅退出当前协程
 				}()
 
-				ctx := NewContext()
+				r.ctx = NewContext()
 				if t := r.getInitTask(); t != nil {
-					r.safeRun(t.Fn, ctx)
+					r.safeRun(t.Fn)
 				}
 				for {
 					select {
@@ -163,12 +164,12 @@ func (r *runner) spawnWorkers(spawnCount int, quit chan bool, spawnCompleteFunc 
 						if r.rateLimitEnabled {
 							blocked := r.rateLimiter.Acquire()
 							if !blocked {
-								task := r.getTask(ctx)
-								r.safeRun(task.Fn, ctx)
+								task := r.getTask()
+								r.safeRun(task.Fn)
 							}
 						} else {
-							task := r.getTask(ctx)
-							r.safeRun(task.Fn, ctx)
+							task := r.getTask()
+							r.safeRun(task.Fn)
 						}
 					}
 				}
@@ -201,7 +202,7 @@ func (r *runner) setTasks(t []*Task) {
 	r.totalTaskWeight = weightSum
 }
 
-func (r *runner) getTask(ctx Context) *Task {
+func (r *runner) getTask() *Task {
 	tasksCount := len(r.tasks)
 	if tasksCount == 1 {
 		// Fast path
@@ -209,7 +210,7 @@ func (r *runner) getTask(ctx Context) *Task {
 	}
 
 	if r.order {
-		return r.getOrderTask(ctx)
+		return r.getOrderTask()
 	}
 
 	rs := rand.New(rand.NewSource(time.Now().UnixNano()))
@@ -233,20 +234,20 @@ func (r *runner) getTask(ctx Context) *Task {
 	return nil
 }
 
-func (r *runner) getOrderTask(ctx Context) *Task {
+func (r *runner) getOrderTask() *Task {
 	var (
 		ok    bool
 		index = 0
 		v     interface{}
 	)
-	if v, ok = ctx.Get(indexKey); ok {
+	if v, ok = r.ctx.Get(indexKey); ok {
 		if index, ok = v.(int); !ok {
 			index = 0
 		}
 	}
 	task := r.tasks[index]
 	index = (index + 1) % len(r.tasks)
-	ctx.Set(indexKey, index)
+	r.ctx.Set(indexKey, index)
 	return task
 }
 
@@ -282,6 +283,10 @@ func (r *runner) stop() {
 	if r.rateLimitEnabled {
 		r.rateLimiter.Stop()
 	}
+}
+
+func (r *runner) context() Context {
+	return r.ctx
 }
 
 type localRunner struct {

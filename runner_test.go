@@ -28,11 +28,11 @@ func (o *HitOutput) OnStop() {
 }
 
 func TestSafeRun(t *testing.T) {
-	ctx := NewContext()
 	runner := &runner{}
+	runner.ctx = NewContext()
 	runner.safeRun(func(Context) {
 		panic("Runner will catch this panic")
-	}, ctx)
+	})
 }
 
 func TestOutputOnStart(t *testing.T) {

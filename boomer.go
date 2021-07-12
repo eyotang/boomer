@@ -137,11 +137,6 @@ func (b *Boomer) Run(tasks ...*Task) {
 	}
 }
 
-// SetInitTask set init task for boomer
-func (b *Boomer) SetInitTask(task *Task) {
-	b.initTask = task
-}
-
 // RecordSuccess reports a success.
 func (b *Boomer) RecordSuccess(requestType, name string, responseTime int64, responseLength int64) {
 	if b.localRunner == nil && b.slaveRunner == nil {
@@ -207,6 +202,21 @@ func (b *Boomer) Quit() {
 	case StandaloneMode:
 		b.localRunner.close()
 	}
+}
+
+// SetInitTask set init task for boomer
+func (b *Boomer) SetInitTask(task *Task) {
+	b.initTask = task
+}
+
+func (b *Boomer) Context() (ctx Context) {
+	switch b.mode {
+	case DistributedMode:
+		ctx = b.slaveRunner.context()
+	case StandaloneMode:
+		ctx = b.localRunner.context()
+	}
+	return
 }
 
 // Run tasks without connecting to the master.
@@ -280,10 +290,6 @@ func DefaultBoomer() *Boomer {
 	return defaultBoomer
 }
 
-func SetInitTask(task *Task) {
-	defaultBoomer.initTask = task
-}
-
 // RecordSuccess reports a success.
 // It's a convenience function to use the defaultBoomer.
 func RecordSuccess(requestType, name string, responseTime int64, responseLength int64) {
@@ -294,4 +300,13 @@ func RecordSuccess(requestType, name string, responseTime int64, responseLength 
 // It's a convenience function to use the defaultBoomer.
 func RecordFailure(requestType, name string, responseTime int64, exception string) {
 	defaultBoomer.RecordFailure(requestType, name, responseTime, exception)
+}
+
+// SetInitTask set init task for default boomer.
+func SetInitTask(task *Task) {
+	defaultBoomer.SetInitTask(task)
+}
+
+func DContext() Context {
+	return defaultBoomer.Context()
 }
