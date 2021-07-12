@@ -324,10 +324,18 @@ func TestSetInitTask(t *testing.T) {
 	time.Sleep(20 * time.Millisecond)
 
 	count := int64(0)
+	exitCount := int64(0)
 	taskInit := &Task{
 		Name: "initTask",
 		Fn: func(Context) {
 			atomic.AddInt64(&count, 2)
+		},
+	}
+	taskQuit := &Task{
+		Weight: 0,
+		Name:   "quitTask",
+		Fn: func(Context) {
+			atomic.AddInt64(&exitCount, 1)
 		},
 	}
 	taskA := &Task{
@@ -339,6 +347,7 @@ func TestSetInitTask(t *testing.T) {
 	}
 
 	SetInitTask(taskInit)
+	SetQuitTask(taskQuit)
 	go Run(taskA)
 	time.Sleep(20 * time.Millisecond)
 
@@ -349,10 +358,74 @@ func TestSetInitTask(t *testing.T) {
 
 	time.Sleep(4 * time.Second)
 
-	defaultBoomer.Quit()
-
 	if count != 30 {
 		t.Error("count is", count, "expected: 30")
+	}
+
+	server.toClient <- newMessage("quit", nil, defaultBoomer.slaveRunner.nodeID)
+	time.Sleep(20 * time.Millisecond)
+
+	if exitCount != 10 {
+		t.Error("count is", exitCount, "expected: 10")
+	}
+}
+
+func TestSetQuitTask(t *testing.T) {
+	flag.Parse()
+
+	masterHost = "0.0.0.0"
+	rand.Seed(Now())
+	masterPort = rand.Intn(1000) + 10240
+
+	server := newTestServer(masterHost, masterPort)
+	defer server.close()
+
+	log.Println(fmt.Sprintf("Starting to serve on %s:%d", masterHost, masterPort))
+	server.start()
+
+	time.Sleep(20 * time.Millisecond)
+
+	count := int64(0)
+	exitCount := int64(0)
+	taskInit := &Task{
+		Name: "initTask",
+		Fn: func(Context) {
+			atomic.AddInt64(&count, 2)
+		},
+	}
+	taskQuit := &Task{
+		Weight: 0,
+		Name:   "quitTask",
+		Fn: func(Context) {
+			atomic.AddInt64(&exitCount, 1)
+		},
+	}
+	taskA := &Task{
+		Name: "increaseCount",
+		Fn:   func(Context) {},
+	}
+
+	SetInitTask(taskInit)
+	SetQuitTask(taskQuit)
+	go Run(taskA)
+	time.Sleep(20 * time.Millisecond)
+
+	server.toClient <- newMessage("hatch", map[string]interface{}{
+		"hatch_rate": float64(10),
+		"num_users":  int64(10),
+	}, defaultBoomer.slaveRunner.nodeID)
+
+	time.Sleep(2 * time.Second)
+
+	if count != 20 {
+		t.Error("count is", count, "expected: 20")
+	}
+
+	server.toClient <- newMessage("quit", nil, defaultBoomer.slaveRunner.nodeID)
+	time.Sleep(20 * time.Millisecond)
+
+	if exitCount != 10 {
+		t.Error("count is", exitCount, "expected: 10")
 	}
 }
 

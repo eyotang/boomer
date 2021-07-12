@@ -17,9 +17,10 @@ type Task struct {
 	Order int
 	// The weight is used to distribute goroutines over multiple tasks.
 	Weight int
-	// Fn is called by the goroutines allocated to this task, in a loop.
-	Fn   func(Context)
+	// The Name is used to mark the task name.
 	Name string
+	// Fn is called by the goroutines allocated to this task, in a loop.
+	Fn func(Context)
 }
 
 // By is the type of a "less" function that defines the ordering of its Planet arguments.

@@ -127,7 +127,7 @@ func (r *runner) outputOnStop() {
 	wg.Wait()
 }
 
-func (r *runner) spawnWorkers(spawnCount int, quit chan bool, spawnCompleteFunc func()) {
+func (r *runner) spawnWorkers(spawnCount int, stop chan bool, spawnCompleteFunc func()) {
 	log.Println("Spawning", spawnCount, "clients at the rate", r.spawnRate, "clients/s...")
 
 	defer func() {
@@ -141,27 +141,34 @@ func (r *runner) spawnWorkers(spawnCount int, quit chan bool, spawnCompleteFunc 
 		time.Sleep(sleepTime)
 
 		select {
-		case <-quit:
+		case <-stop:
 			// quit spawning goroutine
 			return
 		default:
 			atomic.AddInt32(&r.numClients, 1)
 			go func() {
-				defer func() {
-					atomic.AddInt32(&r.numClients, -1)
-					recover() // 主程序不退出，仅退出当前协程
-				}()
-
+				// 订阅退出信号
+				quit := make(chan bool)
+				Events.Subscribe("boomer:quit", func() { quit <- true })
+				// 每个机器人，都需要的上下文
 				ctx := NewContext()
 				if t := r.getInitTask(); t != nil {
 					r.safeRun(t.Fn, ctx)
 				}
+
+				defer func() {
+					if r.quitTask != nil {
+						r.safeRun(r.quitTask.Fn, ctx)
+					}
+					atomic.AddInt32(&r.numClients, -1)
+					recover() // 主程序不退出，仅退出当前协程
+				}()
+
 				for {
 					select {
+					case <-stop:
+						return
 					case <-quit:
-						if r.quitTask != nil {
-							r.safeRun(r.quitTask.Fn, ctx)
-						}
 						return
 					default:
 						if r.rateLimitEnabled {

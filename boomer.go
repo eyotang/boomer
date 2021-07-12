@@ -307,5 +307,5 @@ func SetInitTask(task *Task) {
 
 // SetQuitTask set quit task for default boomer.
 func SetQuitTask(task *Task) {
-	defaultBoomer.SetInitTask(task)
+	defaultBoomer.SetQuitTask(task)
 }
